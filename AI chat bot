@@ -1,0 +1,98 @@
+from docx import Document
+import os
+
+print("Welcome to Your Buddy Chatbot")
+print("I am here to assist you with any questions or concerns you may have.")
+print("Type 'exit', 'quit', or 'bye' anytime to end the conversation and save it to a Word file.")
+
+def build_responses():
+    responses = {
+        "hello": "Hello! How can I help you today?",
+        "how are you": "I am very fine. Thank you.",
+        "who are you": "I am Your Buddy Chatbot, your virtual assistant.",
+        "motivate me": "Believe in yourself and all that you are. Know that there is something inside you that is greater than any obstacle.",
+        "what is your purpose": "My purpose is to assist you with any questions or concerns you may have and provide helpful information.",
+        "happy": "That's great to hear! Keep up the positive vibes.",
+        "sad": "I'm sorry to hear that. Remember, it's okay to feel sad sometimes. Take care of yourself and reach out to someone you trust if you need support.",
+        "what is a hospital": "A hospital is a medical facility where patients receive treatment, diagnosis, and care from doctors and nurses.",
+        "what is medicine": "Medicine is a substance used to prevent, diagnose, or treat illness and disease.",
+        "where should i go if i am sick": "If you are sick, visit a clinic or hospital, especially if you have severe symptoms, fever, breathing trouble, or persistent pain.",
+        "what should i do if i have fever": "Rest, drink plenty of fluids, and monitor your temperature. If the fever is very high or lasts a long time, consult a doctor.",
+        "what is a doctor": "A doctor is a professional trained to diagnose and treat illnesses and injuries.",
+        "what is a nurse": "A nurse helps care for patients by monitoring health, giving medicine, and supporting doctors.",
+        "what is pharmacy": "A pharmacy is a place where medicines are prepared and sold, and pharmacists provide guidance on how to take them.",
+        "how do i take medicine correctly": "Follow the doctor's or pharmacist's instructions carefully, take the correct dose, and do not skip or double doses unless told to do so.",
+        "what is an appointment": "An appointment is a scheduled time to meet a doctor or healthcare professional for treatment or checkup.",
+        "bye": "Goodbye! Have a great day!"
+    }
+
+    topic_answers = {
+        "hospital": "A hospital is a medical facility where patients receive treatment, diagnosis, and care from doctors and nurses.",
+        "doctor": "A doctor is a healthcare professional who diagnoses diseases and treats patients.",
+        "nurse": "A nurse helps care for patients by checking vital signs, giving medicines, and supporting recovery.",
+        "medicine": "Medicine is used to prevent, treat, or manage illness and disease.",
+        "pharmacy": "A pharmacy is where medicines are dispensed and health advice is given.",
+        "clinic": "A clinic is a healthcare facility where patients receive medical consultation and treatment.",
+        "symptom": "A symptom is a sign that indicates a health condition or disease.",
+        "diagnosis": "A diagnosis is the identification of a disease or condition based on symptoms and tests.",
+        "appointment": "An appointment is a scheduled time for a patient to meet a doctor or healthcare professional.",
+        "treatment": "Treatment is the action taken to improve or cure an illness." 
+    }
+
+    for topic, answer in topic_answers.items():
+        responses[f"what is {topic}"] = answer
+        responses[f"what is a {topic}"] = answer
+        responses[f"tell me about {topic}"] = answer
+        responses[f"define {topic}"] = answer
+
+    for i in range(1, 10001):
+        responses[f"question {i}"] = f"This is automated answer {i}. I can help with general questions, hospital information, and medicine topics."
+
+    for i in range(1, 10001):
+        responses[f"what is question {i}"] = f"Question {i} is a sample chatbot question. It is part of the large question bank for testing and practice."
+
+    return responses
+
+
+responses = build_responses()
+
+
+def get_reply(user_input):
+    normalized = user_input.strip().lower()
+    return responses.get(normalized, "I'm not sure how to answer that. Please ask another question.")
+
+
+def save_chat_history(history, file_name="chat_history.docx"):
+    doc = Document()
+    for user_text, bot_text in history:
+        doc.add_paragraph(f"You: {user_text}")
+        doc.add_paragraph(f"Bot: {bot_text}")
+        doc.add_paragraph()
+
+    file_path = os.path.join(os.getcwd(), file_name)
+    doc.save(file_path)
+    return file_path
+
+
+chat_history = []
+
+while True:
+    try:
+        user_input = input("You: ").strip()
+    except EOFError:
+        print("\nSession ended. Saving chat history...")
+        file_path = save_chat_history(chat_history)
+        print(f"All chat replies have been saved to a Word file: {file_path}")
+        break
+
+    if user_input.lower() in {"exit", "quit", "bye"}:
+        final_reply = "Goodbye! Have a great day!"
+        chat_history.append((user_input, final_reply))
+        file_path = save_chat_history(chat_history)
+        print(f"Bot: {final_reply}")
+        print(f"All chat replies have been saved to a Word file: {file_path}")
+        break
+
+    reply = get_reply(user_input)
+    chat_history.append((user_input, reply))
+    print(f"Bot: {reply}")
